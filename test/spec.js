@@ -36,9 +36,23 @@ describe('Beanstream payment gateway', function () {
         .withExpirationYear('2018')
         .withCvv2('123');
     },
+    visa_decline: function () {
+      return new CreditCard()
+        .withCreditCardNumber('4003050500040005')
+        .withExpirationMonth('11')
+        .withExpirationYear('2018')
+        .withCvv2('123');
+    },
     mastercard: function () {
       return new CreditCard()
         .withCreditCardNumber('5100000010001004')
+        .withExpirationMonth('12')
+        .withExpirationYear('2017')
+        .withCvv2('123');
+    },
+    mastercard_decline: function () {
+      return new CreditCard()
+        .withCreditCardNumber('5100000020002000')
         .withExpirationMonth('12')
         .withExpirationYear('2017')
         .withCvv2('123');
@@ -49,6 +63,13 @@ describe('Beanstream payment gateway', function () {
         .withExpirationMonth('12')
         .withExpirationYear('2017')
         .withCvv2('123');
+    },
+    amex_decline: function () {
+      return new CreditCard()
+        .withCreditCardNumber('342400001000180')
+        .withExpirationMonth('12')
+        .withExpirationYear('2017')
+        .withCvv2('123');
     }
   };
 
@@ -56,7 +77,7 @@ describe('Beanstream payment gateway', function () {
     service = factory({MERCHANT_ID: process.env.MERCHANT_ID, API_PASSCODE: process.env.API_PASSCODE});
   });
 
-  it('should create a token', done => {
+  xit('should create a token', done => {
     service.createToken(creditCards.visa().withCardHolder('SUCCESS'))
       .then((response) => {
         assert(response.token, 'token should be defined');
@@ -67,7 +88,7 @@ describe('Beanstream payment gateway', function () {
       })
   });
 
-  it('should submit a transaction with credit card', (done) => {
+  xit('should submit a transaction with a visa', (done) => {
     service.submitTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa().withCardHolder('CARD SUCCESS'), prospect)
@@ -81,11 +102,11 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  it('should handle failed transaction with credit card', done => {
+  xit('should handle failed transaction with a visa', done => {
     service.submitTransaction({
       amount: Math.random() * 1000
-    }, creditCards.visa()
-      .withCardHolder('CARD FAILED').withCreditCardNumber('4003050500040005'), prospect)
+    }, creditCards.visa_decline()
+      .withCardHolder('CARD FAILED'), prospect)
       .then((transaction) => {
         console.log('transaction' + transaction);
         done(new Error('should not get here'));
@@ -98,9 +119,9 @@ describe('Beanstream payment gateway', function () {
   });
 
   it('should submit a transaction with token', (done) => {
-    service.submitTransaction({
+    service.submitTokenTransaction({
       amount: Math.random() * 1000
-    }, creditCards.visa().withCardHolder('TOKEN SUCCESS'), prospect)
+    }, creditCards.visa().withCardHolder(prospect.withBillingFirstName + ' ' + prospect.withBillingLastName), prospect)
     .then((transaction) => {
       assert(transaction.transactionId, 'transactionId should be defined');
       assert(transaction._original, 'original should be defined');
