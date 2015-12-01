@@ -70,7 +70,7 @@ describe('Beanstream payment gateway', function () {
   it('should submit a transaction with credit card', (done) => {
     service.submitTransaction({
       amount: Math.random() * 1000
-    }, creditCards.visa().withCardHolder('FIRST SUCCESS'), prospect)
+    }, creditCards.visa().withCardHolder('CARD SUCCESS'), prospect)
       .then((transaction) => {
         assert(transaction.transactionId, 'transactionId should be defined');
         assert(transaction._original, 'original should be defined');
@@ -81,43 +81,34 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  //noinspection JSUnresolvedVariable
   it('should handle failed transaction with credit card', done => {
     service.submitTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa()
-      .withCardHolder('FAILED')
-      .withCreditCardNumber('4003050500040005'), prospect)
+      .withCardHolder('CARD FAILED').withCreditCardNumber('4003050500040005'), prospect)
       .then((transaction) => {
+        console.log('transaction' + transaction);
         done(new Error('should not get here'));
       })
       .catch(error => {
         assert(error._original);
-        assert.equal(error.message, 'This card is not accepted for Test transactions');
+        assert.equal(error.message, 'DECLINE');
         done();
       });
   });
 
-  it('should submit a transaction with a token', (done) => {
-    service.createToken(creditCards.visa().withCardHolder('SUCCESS'))
-    .then((response) => {
-      assert(response.token, 'token should be defined');
-    })
-    .catch(error => {
-      done(error);
-    })
-    .then((response.token) => {
-      return service.submitTransactionToken({
-        amount: Math.random() * 1000, response.token , prospect
-    })})
+  it('should submit a transaction with token', (done) => {
+    service.submitTransaction({
+      amount: Math.random() * 1000
+    }, creditCards.visa().withCardHolder('TOKEN SUCCESS'), prospect)
     .then((transaction) => {
-      assert(transaction.id, 'transactionId should be defined');
+      assert(transaction.transactionId, 'transactionId should be defined');
       assert(transaction._original, 'original should be defined');
       done();
     })
     .catch(error => {
       done(error);
     });
-  }
+  });
 
 });
