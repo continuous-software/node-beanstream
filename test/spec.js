@@ -77,7 +77,7 @@ describe('Beanstream payment gateway', function () {
     service = factory({MERCHANT_ID: process.env.MERCHANT_ID, API_PASSCODE: process.env.API_PASSCODE});
   });
 
-  xit('should create a token', done => {
+  it('should create a token', done => {
     service.createToken(creditCards.visa().withCardHolder('SUCCESS'))
       .then((response) => {
         assert(response.token, 'token should be defined');
@@ -88,7 +88,7 @@ describe('Beanstream payment gateway', function () {
       })
   });
 
-  xit('should submit a transaction with a visa', (done) => {
+  it('should submit a transaction with a visa', (done) => {
     service.submitTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa().withCardHolder('CARD SUCCESS'), prospect)
@@ -102,7 +102,7 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  xit('should handle failed transaction with a visa', done => {
+  it('should handle failed transaction with a visa', done => {
     service.submitTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa_decline()
@@ -118,7 +118,7 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  it('should submit a transaction with token', (done) => {
+  xit('should submit a transaction with token', (done) => {
     service.submitTokenTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa().withCardHolder(prospect.withBillingFirstName + ' ' + prospect.withBillingLastName), prospect)
