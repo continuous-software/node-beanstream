@@ -77,8 +77,8 @@ describe('Beanstream payment gateway', function () {
     service = factory({MERCHANT_ID: process.env.MERCHANT_ID, API_PASSCODE: process.env.API_PASSCODE});
   });
 
-  it('should create a token', done => {
-    service.createToken(creditCards.visa().withCardHolder('SUCCESS'))
+  it('should create a Legato token', (done) => {
+    service.createLegatoToken(creditCards.visa().withCardHolder('SUCCESS'))
       .then((response) => {
         assert(response.token, 'token should be defined');
         done();
@@ -102,7 +102,7 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  it('should handle failed transaction with a visa', done => {
+  it('should handle failed transaction with a visa', (done) => {
     service.submitTransaction({
       amount: Math.random() * 1000
     }, creditCards.visa_decline()
@@ -118,18 +118,74 @@ describe('Beanstream payment gateway', function () {
       });
   });
 
-  xit('should submit a transaction with token', (done) => {
-    service.submitTokenTransaction({
-      amount: Math.random() * 1000
-    }, creditCards.visa().withCardHolder(prospect.withBillingFirstName + ' ' + prospect.withBillingLastName), prospect)
-    .then((transaction) => {
-      assert(transaction.transactionId, 'transactionId should be defined');
-      assert(transaction._original, 'original should be defined');
-      done();
-    })
-    .catch(error => {
-      done(error);
+
+  it('should refund an order', (done) => {
+    var amount = +((+(Math.random() * 1000)).toFixed(2));
+    service.submitTransaction( { amount: amount}, creditCards.visa().withCardHolder('REFUND SUCCESS'), prospect)
+      .then((transaction) => {
+        assert(transaction.transactionId, 'transactionId should be defined');
+        assert(transaction._original, 'original should be defined');
+        return service.refundTransaction(transaction.transactionId, amount);
+      })
+      .then(resp => {
+        done();
+      })
+      .catch(error => {
+        done(error);
+      });
+    });
+
+  it('should handle error while refunding an order', (done) => {
+    var amount = +((+(Math.random() * 1000)).toFixed(2));
+    service.submitTransaction( { amount: amount}, creditCards.visa().withCardHolder('REFUND SUCCESS'), prospect)
+      .then((transaction) => {
+        assert(transaction.transactionId, 'transactionId should be defined');
+        assert(transaction._original, 'original should be defined');
+        return service.refundTransaction('foo', 20);
+      })
+      .then(resp => {
+        done(new Error('it should not get here'));
+      })
+      .catch(error => {
+        done();
     });
   });
+
+  it('should void an order', (done) => {
+    var amount = +((+(Math.random() * 1000)).toFixed(2));
+    service.submitTransaction( { amount: amount}, creditCards.visa().withCardHolder('VOID SUCCESS'), prospect)
+      .then((transaction) => {
+        assert(transaction.transactionId, 'transactionId should be defined');
+        assert(transaction._original, 'original should be defined');
+        return service.voidTransaction(transaction.transactionId, amount);
+      })
+      .then(resp => {
+        done();
+      })
+      .catch(error => {
+        done(error);
+    });
+  });
+
+  it('should get an order', (done) => {
+    var amount = +((+(Math.random() * 1000)).toFixed(2));
+    service.submitTransaction( { amount: amount}, creditCards.visa().withCardHolder('GET TRANSACTION'), prospect)
+      .then((transaction) => {
+        assert(transaction.transactionId, 'transactionId should be defined');
+        assert(transaction._original, 'original should be defined');
+        return service.getTransaction(transaction.transactionId);
+      })
+      .then(resp => {
+        assert.equal(resp._original.approved, 1);
+        assert.equal(resp._original.amount, amount);
+        done();
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+
+
 
 });
