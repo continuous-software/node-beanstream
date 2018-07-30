@@ -5,6 +5,16 @@
 ## Installation
 
     $ npm install --save 42-cent-beanstream
+    
+## Usage
+
+```javascript
+var Beanstream = require('42-cent-beastream');
+var client = new Beanstream({
+    MERCHANT_ID: '<PLACEHOLDER>',
+    API_PASSCODE: '<PLACEHOLDER>'
+});
+```
 
 ## Gateway API
 
