@@ -10,7 +10,7 @@
     "42-cent-base": "^1.0.0",
     "42-cent-util": "^1.0.0",
     "bluebird": "^3.5.1",
-    "superagent": "^3.8.2",
+    "superagent": "^5.0.8",
     "object-assign": "^4.0.1"
   },
   "devDependencies": {
