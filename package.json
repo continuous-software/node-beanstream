@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "mocha": "^5.1.1",
-    "casual": "^1.4.7",
+    "casual": "^1.6.2",
     "42-cent-model": "^2.0.2"
   },
   "repository": {
